@@ -2,14 +2,17 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 from api.user import router as user_router
 from api.book import router as book_router
+from api.record import router as record_router
+
 from config import config
 
 app = FastAPI()
 app.include_router(user_router)
 app.include_router(book_router)
-
+app.include_router(record_router)
 
 app.add_middleware(
     CORSMiddleware,
