@@ -31,7 +31,21 @@ python main.py
 ### Useful plugins for VsCode
 - [SQLite](https://marketplace.visualstudio.com/items?itemName=alexcvzz.vscode-sqlite)
 - [SQLite Viewer](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer)  
-  
+
+### Linting & Formatting
+Using `pylint`, `black` and `isort` to lint and format the code.
+
+```shell
+# generate pylintrc to customize pylint
+pylint --generate-rcfile > pylintrc
+```
+```shell
+# enable execute permission
+chmod +x ./lint_and_format.sh
+
+# run linting and formatting
+./lint_and_format.sh
+```
 ---
 
 > Default API Document: http://127.0.0.1:8000/docs
