@@ -1,3 +1,5 @@
+from typing import Generator
+
 from sqlmodel import Session, create_engine
 
 from config import config
