@@ -1,4 +1,6 @@
 # OOAD
+### System Architecture Diagram
+![](docs/system%20architecture%20diagram.png)
 
 ### Getting Started
 
