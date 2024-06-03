@@ -56,3 +56,17 @@ async def login_user(request: Request, db: Session = Depends(get_db)):
     stmt = select(User).where(col(User.name) == request.headers.get("username"))
 
     NotImplementedError("Implement the login logic here")
+
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_200_OK,
+    summary="Logout user",
+    responses={
+        status.HTTP_200_OK:{"description": "User logged out successfully"},
+        status.HTTP_401_UNAUTHORIZED:{"description": "Unauthorized access"},
+    },
+)
+async def logout_user(request: Request, db: Session = Depends(get_db)):
+    return {"message": "User logged out successfully"}
+
