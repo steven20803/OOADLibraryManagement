@@ -6,8 +6,33 @@ from sqlmodel import Session, col, select
 from dbHelper import get_db
 from models.user import Role, User
 
+
+import bcrypt
+import jwt
+from passlib.context import CryptContext
+
+
 router = APIRouter(tags=["user"], prefix="/user")
 
+# 初始化密碼上下文
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# JWT 密鑰和算法（確保這是秘密的並存放在環境變數中）
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 @router.post(
     "/register",
@@ -53,9 +78,33 @@ async def register_user(request: Request, user: User, db: Session = Depends(get_
     },
 )
 async def login_user(request: Request, db: Session = Depends(get_db)):
-    stmt = select(User).where(col(User.name) == request.headers.get("username"))
+    '''
+        stmt = select(User).where(col(User.name) == request.headers.get("username"))
 
-    NotImplementedError("Implement the login logic here")
+        NotImplementedError("Implement the login logic here")
+    '''
+    username = request.headers.get("username")
+    password = request.headers.get("password")
+
+    if not username or not password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    stmt = select(User).where(col(User.name) == username) 
+    exists = db.exec(stmt).one_or_none()
+
+
+    if not exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="User does not exists"
+        )
+    '''
+    if user is None or not verify_password(password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    '''
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(data={"sub": user.name}, expires_delta=access_token_expires)
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.post(
