@@ -46,7 +46,12 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             status_code=409,
             content={"message": exc.detail},
         )
-
+    
+    if exc.status_code == 401:
+        return JSONResponse(
+            status_code=401,
+            content={"message": exc.detail},
+        )
 
 if __name__ == "__main__":
     uvicorn.run(
