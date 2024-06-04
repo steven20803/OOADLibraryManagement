@@ -2,6 +2,8 @@ from enum import Enum
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
+from sqlmodel import Session, select
+from typing import List
 
 
 class Role(Enum):
