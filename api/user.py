@@ -77,30 +77,33 @@ async def register_user(request: Request, user: User, db: Session = Depends(get_
         status.HTTP_401_UNAUTHORIZED: {"description": "Invalid credentials"},
     },
 )
-async def login_user(request: Request, db: Session = Depends(get_db)):
+async def login_user(request: Request, user: User, db: Session = Depends(get_db)):
     '''
         stmt = select(User).where(col(User.name) == request.headers.get("username"))
 
         NotImplementedError("Implement the login logic here")
     '''
-    username = request.headers.get("username")
-    password = request.headers.get("password")
+    user_data = await request.json()
+    username = user_data.get("username")
+    password = user_data.get("password")
+    
+    if not ( username ) or ( not password ):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login Invalid credentials")
 
-    if not username or not password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     stmt = select(User).where(col(User.name) == username) 
-    exists = db.exec(stmt).one_or_none()
-
-
-    if not exists:
+    result = db.exec(stmt).one_or_none()
+    
+    if not result:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="User does not exists"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials--user not found"
         )
-    '''
-    if user is None or not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    '''
+    
+    user = result.scalar().first
+
+    if not verify_password(password, user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials--wrong password")
+    
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(data={"sub": user.name}, expires_delta=access_token_expires)
 
