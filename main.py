@@ -40,6 +40,12 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             status_code=500,
             content={"message": "Something bad happened to the server : ("},
         )
+    
+    if exc.status_code == 409:
+        return JSONResponse(
+            status_code=409,
+            content={"message": exc.detail},
+        )
 
 
 if __name__ == "__main__":
