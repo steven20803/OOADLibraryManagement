@@ -119,6 +119,22 @@ async def login_user(request: Request, user: User, db: Session = Depends(get_db)
         status.HTTP_401_UNAUTHORIZED:{"description": "Unauthorized access"},
     },
 )
-async def logout_user(request: Request, db: Session = Depends(get_db)):
+async def logout_user(request: Request, db: Session = Depends(get_db)): 
+    # Get the user's token from the request
+    token = request.headers.get("Authorization")
+
+    # Check if the token is valid
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized access")
+
+    # Invalidate the token
+    # For example, you can delete the token from the database
+    stmt = select(User).where(col(User.token) == token)
+    result = db.exec(stmt).one_or_none()
+    user = result.scalar().first
+    if user:
+        user.token = None
+        db.commit()
+
     return {"message": "User logged out successfully"}
 
