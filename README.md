@@ -49,4 +49,3 @@ chmod +x ./lint_and_format.sh
 ---
 
 > Default API Document: http://127.0.0.1:8000/docs
-

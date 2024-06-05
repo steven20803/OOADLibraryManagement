@@ -12,4 +12,4 @@ class Book(SQLModel, table=True):
     borrower_id: int = Field(default=None, foreign_key="user.id")
     last_borrowed: Optional[datetime] = Field(default=None)
     status: bool = Field(default=True)
-    comments: str = Field(default="")
+    comments: str = Field(default="") 

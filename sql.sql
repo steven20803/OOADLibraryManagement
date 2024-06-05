@@ -45,6 +45,4 @@ INSERT INTO book (book_name, author, borrowed, borrower_id, last_borrowed, statu
 INSERT INTO book (book_name, author, borrowed, borrower_id, last_borrowed, status, comments) VALUES ('The Hobbit', 'J.R.R. Tolkien', 0, -1, NULL, 1, '');
 INSERT INTO book (book_name, author, borrowed, borrower_id, last_borrowed, status, comments) VALUES ('The Fellowship of the Ring', 'J.R.R. Tolkien', 0, -1, NULL, 1, '');
 INSERT INTO book (book_name, author, borrowed, borrower_id, last_borrowed, status, comments) VALUES ('The Two Towers', 'J.R.R. Tolkien', 0, -1, NULL, 1, '');
-
-
 INSERT INTO record (user_id, book_id, borrowed_time, expected_return_time, actual_return_time) VALUES (2, 1, '2020-01-01', '2020-01-08', '2020-01-07');
