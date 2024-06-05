@@ -24,11 +24,23 @@ app.add_middleware(
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
+    
     if exc.status_code == 404:
-        return JSONResponse(
-            status_code=404,
-            content={"message": "The page you are looking for is not found."},
-        )
+        if exc.detail:
+            return JSONResponse(
+                status_code=404,content={"message": exc.detail} 
+            )
+        else:
+            return JSONResponse(
+                status_code=404,content={"message": "The page you are looking for is not found."} 
+            )    
+                
+    
+    # if exc.status_code == 404:
+    #     return JSONResponse(
+    #         status_code=404,
+    #         content={"message": "The page you are looking for is not found."},
+    #     )
 
     if exc.status_code == 422:
         return JSONResponse(
@@ -40,7 +52,12 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             status_code=500,
             content={"message": "Something bad happened to the server : ("},
         )
-
+        
+    if exc.status_code == 409:
+        return JSONResponse(
+            status_code=409,
+            content={"message": exc.detail},
+        )    
 
 if __name__ == "__main__":
     uvicorn.run(
