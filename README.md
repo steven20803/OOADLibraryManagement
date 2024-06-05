@@ -1,6 +1,4 @@
 # OOAD
-### System Architecture Diagram
-![](docs/system%20architecture%20diagram.png)
 
 ### Getting Started
 
@@ -51,10 +49,3 @@ chmod +x ./lint_and_format.sh
 ---
 
 > Default API Document: http://127.0.0.1:8000/docs
-
-### Local Dev
-如果還沒有建立 .sqlite 資料庫，請執行以下操作  
-1. 在 root 建立 demo.sqlite檔案
-2. 對demo.sqlite執行sql.sql檔案中的指令，可以透過vscode sqlite插件指令執行
-3. launch the server: 執行 python main.py 或是 python3 main.py
-4. swagger 文件在 http://127.0.0.1:8000/docs, 可以透過try it out 來試著呼叫API查看功能
