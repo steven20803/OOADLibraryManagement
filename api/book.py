@@ -7,6 +7,8 @@ from sqlalchemy import func, update
 from dbHelper import get_db
 from models.book import Book
 
+from datetime import datetime, timedelta
+
 router = APIRouter(tags=["book"], prefix="/book")
 
 
@@ -72,43 +74,37 @@ async def borrow_book(request: Request, book_id: int, user_id: int, db: Session 
     if not book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-            return
         )
 
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            return
         )
 
     if book.status == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="The book has been borrowed"
-            return
         )
 
     if book.status == 2:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book lost"
-            return
         )
 
     if book.status == 3:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book damaged"
-            return
         )
 
     if book.status != 1:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not available"
-            return
         )
 
     # Modify database
     book.borrower_id = user.id
     book.last_borrowed = datetime.now()
-    book.expected_return_time = datetime.now() + timedelta(weeks=1)
+    book.expected_return_time = datetime.now() + timedelta(weeks=8)
     book.status = 0
 
     # Create record
@@ -119,7 +115,7 @@ async def borrow_book(request: Request, book_id: int, user_id: int, db: Session 
     db.refresh(book)
     return 'Book borrowed successfully'
   
-  @router.post(
+@router.post(
     "/book_create",
     status_code=status.HTTP_201_CREATED,
     response_model=Book,
@@ -210,3 +206,39 @@ async def delete_book_by_id(request: Request, book_id: int, db: Session = Depend
     db.delete(book)
     db.commit()
     return book
+
+@router.put(
+    "/{book_id}/borrow",
+    status_code=status.HTTP_200_OK,
+    summary="Borrow a book by id",
+    responses={
+        status.HTTP_200_OK: {"description": "Book borrowed"},
+        status.HTTP_404_NOT_FOUND: {"description": "Book not found"},
+        status.HTTP_400_BAD_REQUEST: {"description": "Book already borrowed"},
+    },
+)
+async def borrow_book_by_id(request: Request, book_id: int, user_id: str, db: Session = Depends(get_db)):
+    stmt = select(Book).where(col(Book.id) == book_id)
+    book = db.exec(stmt).one_or_none()
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+        )
+
+    stmt = (
+        update(Book).
+        where(col(Book.id) == int(book_id)).
+        values(
+            borrower_id=user_id,
+            last_borrowed=datetime.now(),
+            expected_return_time=datetime.now() + timedelta(weeks=8),
+            status=0
+        )
+    )
+    
+    db.exec(stmt)
+
+    db.commit()
+    db.refresh(book)
+    return 'Book borrowed successfully'

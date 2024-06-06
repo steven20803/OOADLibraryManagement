@@ -8,6 +8,7 @@ from dbHelper import get_db
 from models.user import Role, User
 from fastapi import HTTPException
 
+from typing import List
 router = APIRouter(tags=["user"], prefix="/user")
 
 
@@ -38,7 +39,7 @@ async def register_user(request: Request, username: str, set_password: str, db: 
             password=set_password,
             role=Role(1),
             status=True
-            )
+        )
 
         db.add(user)
         db.commit()
@@ -69,7 +70,6 @@ async def login_user(request: Request, username: str, password: str, db: Session
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="User already exists"
             )
-
         if exists.password != password:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -81,6 +81,19 @@ async def login_user(request: Request, username: str, password: str, db: Session
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=List[User],
+    response_model_exclude={"password"},
+    summary="Get all users",
+    responses={status.HTTP_200_OK: {"description": "Users found"}},
+)
+async def get_users(request: Request, db: Session = Depends(get_db)):
+    stmt = select(User)
+    users = db.exec(stmt).all()
+    return users
 
 @router.get(
     "/{user_id}",
@@ -117,7 +130,7 @@ async def get_user(request: Request, user_id: int, db: Session = Depends(get_db)
 async def update_user(request: Request, user:User, db: Session = Depends(get_db)):
     stmt = select(User).where(col(User.id) == user.id)
     existing_user = db.exec(stmt).one_or_none()
-
+    print(existing_user)
     if not existing_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -127,13 +140,15 @@ async def update_user(request: Request, user:User, db: Session = Depends(get_db)
         where(col(User.id) == user.id).
         values(
             name=user.name,
-            password=user.password,
-            role=Role(user.role),
+            role=user.role,
+            birthdate=user.birthdate,
             status=user.status
         )
     )
     try:
         db.exec(stmt)
+        db.commit()
+        db.refresh(existing_user)
         return existing_user
     except ValueError:
         raise HTTPException(

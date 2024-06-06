@@ -1,7 +1,7 @@
 # OOAD
 
 ### Getting Started
-
+### Backend
 #### MacOS
 ```shell
 git clone https://github.com/steven20803/OOADLibraryManagement
@@ -49,3 +49,9 @@ chmod +x ./lint_and_format.sh
 ---
 
 > Default API Document: http://127.0.0.1:8000/docs
+
+
+### Frontend
+1. navigate into `/frontend` folder
+2. run `npm install`
+3. run `npm start`, the frontend will be served at `http://localhost:3000`
